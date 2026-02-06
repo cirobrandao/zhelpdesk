@@ -76,6 +76,12 @@ php bin/console generate-token admin@example.com
 - Prioridade de locale: preferencia do usuario > query param `lang` > `Accept-Language` > `pt_BR`
 - Para adicionar um idioma, crie `app/i18n/<locale>.php`.
 
+## Registro e confirmacao de e-mail
+
+- `REGISTER_ENABLED=1` habilita /register.
+- `EMAIL_CONFIRMATION_ENABLED=1` exige confirmacao via link /verify-email/<token>.
+- O link de confirmacao e gravado em `storage/logs/verify.log`.
+
 ## Updater (releases assinadas)
 
 1) Gere um pacote (zip ou tar.gz) e calcule SHA256.
@@ -86,7 +92,7 @@ php bin/console generate-token admin@example.com
 6) Aplique o update via CLI:
 
 ```
-php bin/update --apply
+php bin/update --apply --user=1
 ```
 
 Manifesto esperado:

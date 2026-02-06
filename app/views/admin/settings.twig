@@ -11,9 +11,9 @@
         <input class="form-control" name="{{ key }}" value="{{ value }}">
       </div>
     {% else %}
-      <div class="text-muted">No settings</div>
+      <div class="text-muted">{{ t('ui.no_settings') }}</div>
     {% endfor %}
-    <button class="btn btn-accent">Save</button>
+    <button class="btn btn-accent">{{ t('ui.save') }}</button>
   </form>
 </div>
 {% endblock %}

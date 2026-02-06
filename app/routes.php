@@ -37,6 +37,9 @@ $app->get('/login', [$authController, 'showLogin']);
 $app->post('/login', [$authController, 'login'])
     ->add(new RateLimitMiddleware(storage_path('cache/ratelimit'), 5, 60))
     ->add(new CsrfMiddleware());
+$app->get('/register', [$authController, 'showRegister']);
+$app->post('/register', [$authController, 'register'])->add(new CsrfMiddleware());
+$app->get('/verify-email/{token}', [$authController, 'verifyEmail']);
 $app->get('/logout', [$authController, 'logout']);
 $app->get('/password/forgot', [$authController, 'showForgot']);
 $app->post('/password/forgot', [$authController, 'sendReset'])->add(new CsrfMiddleware());

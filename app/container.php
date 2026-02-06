@@ -75,7 +75,7 @@ return [
     UpdateRepository::class => fn ($c) => new UpdateRepository($c->get(PDO::class)),
     AuditRepository::class => fn ($c) => new AuditRepository($c->get(PDO::class)),
 
-    AuthService::class => fn ($c) => new AuthService($c->get(UserRepository::class), $c->get(AuditService::class)),
+    AuthService::class => fn ($c) => new AuthService($c->get(UserRepository::class), $c->get(AuditService::class), $c->get('config.app')),
     TicketService::class => fn ($c) => new TicketService($c->get(TicketRepository::class), $c->get(AuditService::class)),
     KnowledgeBaseService::class => fn ($c) => new KnowledgeBaseService($c->get(KnowledgeBaseRepository::class)),
     ReportService::class => fn ($c) => new ReportService($c->get(TicketRepository::class)),

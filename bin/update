@@ -26,9 +26,14 @@ $repo = new App\Repositories\UpdateRepository($pdo);
 $service = new UpdateService($repo, $configUpdater);
 
 $command = $argv[1] ?? '';
+$userArg = $argv[2] ?? '';
+$userId = 0;
+if (str_starts_with($userArg, '--user=')) {
+    $userId = (int) substr($userArg, 7);
+}
 
 if ($command !== '--apply') {
-    echo "Usage: php bin/update --apply\n";
+    echo "Usage: php bin/update --apply [--user=ID]\n";
     exit(1);
 }
 
@@ -76,5 +81,11 @@ if (is_link($currentLink) || file_exists($currentLink)) {
 @symlink($releaseDir, $currentLink);
 
 unlink($maintenance);
+
+$previous = $repo->lastApplied();
+$previousVersion = $previous['version'] ?? null;
+if ($userId > 0) {
+    $repo->recordApplied($version, (string) $previousVersion, $userId);
+}
 
 echo "Update applied: {$version}\n";

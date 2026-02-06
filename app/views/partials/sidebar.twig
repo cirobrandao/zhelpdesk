@@ -8,7 +8,7 @@
 </div>
 <hr>
 <form method="get" action="/tickets" class="d-grid gap-2">
-  <input class="form-control" name="q" placeholder="Search">
+  <input class="form-control" name="q" placeholder="{{ t('ui.search') }}">
   <select class="form-select" name="status">
     <option value="">{{ t('tickets.status') }}</option>
     <option value="open">open</option>
@@ -24,5 +24,5 @@
     <option value="high">high</option>
     <option value="urgent">urgent</option>
   </select>
-  <button class="btn btn-accent">Filter</button>
+  <button class="btn btn-accent">{{ t('ui.filter') }}</button>
 </form>

@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
   api_token VARCHAR(255) DEFAULT NULL,
   reset_token VARCHAR(255) DEFAULT NULL,
   reset_expires_at DATETIME DEFAULT NULL,
+  email_verify_token VARCHAR(255) DEFAULT NULL,
+  email_verified_at DATETIME DEFAULT NULL,
   last_login_at DATETIME DEFAULT NULL,
   created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

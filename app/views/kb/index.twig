@@ -4,8 +4,8 @@
 <h2 class="mb-3">{{ t('nav.kb') }}</h2>
 <div class="card p-3">
   <form method="get" class="mb-3 d-flex gap-2">
-    <input class="form-control" name="q" placeholder="Search">
-    <button class="btn btn-accent">Search</button>
+    <input class="form-control" name="q" placeholder="{{ t('ui.search') }}">
+    <button class="btn btn-accent">{{ t('ui.search') }}</button>
   </form>
   <ul class="list-group list-group-flush">
     {% for article in articles %}
@@ -13,7 +13,7 @@
         <a href="/kb/{{ article.id }}">{{ article.title }}</a>
       </li>
     {% else %}
-      <li class="list-group-item text-muted">No articles</li>
+      <li class="list-group-item text-muted">{{ t('ui.no_articles') }}</li>
     {% endfor %}
   </ul>
 </div>

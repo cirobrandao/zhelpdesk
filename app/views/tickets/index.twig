@@ -9,11 +9,11 @@
   <table class="table">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>{{ t('ui.id') }}</th>
         <th>{{ t('tickets.subject') }}</th>
         <th>{{ t('tickets.status') }}</th>
         <th>{{ t('tickets.priority') }}</th>
-        <th>Updated</th>
+        <th>{{ t('ui.updated') }}</th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
           <td>{{ ticket.updated_at }}</td>
         </tr>
       {% else %}
-        <tr><td colspan="5" class="text-muted">No tickets</td></tr>
+        <tr><td colspan="5" class="text-muted">{{ t('ui.no_tickets') }}</td></tr>
       {% endfor %}
     </tbody>
   </table>

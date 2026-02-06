@@ -10,11 +10,13 @@ class AuthService
 {
     private UserRepository $users;
     private AuditService $audit;
+    private array $config;
 
-    public function __construct(UserRepository $users, AuditService $audit)
+    public function __construct(UserRepository $users, AuditService $audit, array $config)
     {
         $this->users = $users;
         $this->audit = $audit;
+        $this->config = $config;
     }
 
     public function attempt(string $email, string $password): bool
@@ -25,6 +27,10 @@ class AuthService
         }
 
         if (!password_verify($password, $user['password_hash'])) {
+            return false;
+        }
+
+        if (!empty($this->config['email_confirmation_enabled']) && empty($user['email_verified_at'])) {
             return false;
         }
 
@@ -80,6 +86,48 @@ class AuthService
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $this->users->updatePassword((int) $user['id'], $hash);
         $this->audit->log((int) $user['id'], 'password_reset');
+        return true;
+    }
+
+    public function register(string $name, string $email, string $password): ?int
+    {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $token = null;
+        $verifiedAt = null;
+
+        if (!empty($this->config['email_confirmation_enabled'])) {
+            $token = bin2hex(random_bytes(32));
+        } else {
+            $verifiedAt = date('Y-m-d H:i:s');
+        }
+
+        $userId = $this->users->create([
+            'name' => $name,
+            'email' => $email,
+            'password_hash' => $hash,
+            'email_verify_token' => $token,
+            'email_verified_at' => $verifiedAt,
+        ]);
+
+        $this->users->assignRole($userId, 'user');
+
+        if ($token) {
+            $logLine = sprintf("%s verify link: /verify-email/%s\n", date('c'), $token);
+            file_put_contents(storage_path('logs/verify.log'), $logLine, FILE_APPEND);
+        }
+
+        $this->audit->log($userId, 'user_registered');
+        return $userId;
+    }
+
+    public function verifyEmail(string $token): bool
+    {
+        $user = $this->users->findByVerifyToken($token);
+        if (!$user) {
+            return false;
+        }
+        $this->users->markEmailVerified((int) $user['id']);
+        $this->audit->log((int) $user['id'], 'email_verified');
         return true;
     }
 }
