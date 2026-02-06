@@ -27,8 +27,12 @@ return [
     'config.updater' => fn () => require base_path('config/updater.php'),
 
     Logger::class => function (): Logger {
+        $logDir = storage_path('logs');
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0775, true);
+        }
         $logger = new Logger('app');
-        $logger->pushHandler(new StreamHandler(storage_path('logs/app.log')));
+        $logger->pushHandler(new StreamHandler($logDir . DIRECTORY_SEPARATOR . 'app.log'));
         return $logger;
     },
 
