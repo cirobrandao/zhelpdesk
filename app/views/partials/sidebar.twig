@@ -1,0 +1,28 @@
+<div class="d-grid gap-2">
+  <a class="btn btn-light text-start" href="/dashboard">{{ t('nav.dashboard') }}</a>
+  <a class="btn btn-light text-start" href="/tickets">{{ t('nav.tickets') }}</a>
+  <a class="btn btn-light text-start" href="/kb">{{ t('nav.kb') }}</a>
+  <a class="btn btn-light text-start" href="/reports">{{ t('nav.reports') }}</a>
+  <a class="btn btn-light text-start" href="/admin/settings">{{ t('nav.settings') }}</a>
+  <a class="btn btn-light text-start" href="/admin/updates">{{ t('nav.updates') }}</a>
+</div>
+<hr>
+<form method="get" action="/tickets" class="d-grid gap-2">
+  <input class="form-control" name="q" placeholder="Search">
+  <select class="form-select" name="status">
+    <option value="">{{ t('tickets.status') }}</option>
+    <option value="open">open</option>
+    <option value="in_progress">in_progress</option>
+    <option value="on_hold">on_hold</option>
+    <option value="resolved">resolved</option>
+    <option value="closed">closed</option>
+  </select>
+  <select class="form-select" name="priority">
+    <option value="">{{ t('tickets.priority') }}</option>
+    <option value="low">low</option>
+    <option value="medium">medium</option>
+    <option value="high">high</option>
+    <option value="urgent">urgent</option>
+  </select>
+  <button class="btn btn-accent">Filter</button>
+</form>

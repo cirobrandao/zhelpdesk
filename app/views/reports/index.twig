@@ -1,0 +1,22 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2 class="mb-3">{{ t('nav.reports') }}</h2>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="text-muted">{{ t('reports.avg_first_response') }}</div>
+      <div class="display-6 fw-bold">{{ avg_first_response|default('') }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="text-muted">{{ t('reports.avg_resolution') }}</div>
+      <div class="display-6 fw-bold">{{ avg_resolution|default('') }}</div>
+    </div>
+  </div>
+</div>
+<div class="mt-3">
+  <a class="btn btn-outline-dark" href="/reports/export">Export CSV</a>
+</div>
+{% endblock %}

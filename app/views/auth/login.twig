@@ -1,0 +1,27 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card p-4">
+      <h3 class="mb-3">{{ t('auth.login') }}</h3>
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+      <form method="post" action="/login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="mb-3">
+          <label class="form-label">{{ t('auth.email') }}</label>
+          <input class="form-control" name="email" type="email" value="{{ email|default('') }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ t('auth.password') }}</label>
+          <input class="form-control" name="password" type="password" required>
+        </div>
+        <div class="d-grid gap-2">
+          <button class="btn btn-accent">{{ t('auth.login') }}</button>
+          <a class="btn btn-link" href="/password/forgot">{{ t('auth.forgot') }}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

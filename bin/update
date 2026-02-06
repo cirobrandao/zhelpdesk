@@ -1,0 +1,80 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../app/helpers.php';
+
+use App\Services\UpdateService;
+use Dotenv\Dotenv;
+use PDO;
+
+$dotenv = Dotenv::createImmutable(base_path());
+$dotenv->safeLoad();
+
+$configApp = require base_path('config/app.php');
+$configUpdater = require base_path('config/updater.php');
+
+$db = require base_path('config/database.php');
+$dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $db['host'], $db['port'], $db['name'], $db['charset']);
+$pdo = new PDO($dsn, $db['user'], $db['pass'], [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+]);
+
+$repo = new App\Repositories\UpdateRepository($pdo);
+$service = new UpdateService($repo, $configUpdater);
+
+$command = $argv[1] ?? '';
+
+if ($command !== '--apply') {
+    echo "Usage: php bin/update --apply\n";
+    exit(1);
+}
+
+$result = $service->downloadAndVerify();
+if (!empty($result['error'])) {
+    echo "Update failed: {$result['error']}\n";
+    exit(1);
+}
+
+$manifestPath = storage_path('updates/manifest.json');
+$manifest = json_decode(file_get_contents($manifestPath) ?: '', true);
+if (!is_array($manifest)) {
+    echo "Manifest missing\n";
+    exit(1);
+}
+
+$version = (string) $manifest['version'];
+$package = $result['package'];
+
+$maintenance = storage_path('maintenance.flag');
+file_put_contents($maintenance, '1');
+
+$releaseDir = storage_path('releases/' . $version);
+if (!is_dir($releaseDir)) {
+    mkdir($releaseDir, 0775, true);
+}
+
+$zip = new ZipArchive();
+if ($zip->open($package) === true) {
+    $zip->extractTo($releaseDir);
+    $zip->close();
+} else {
+    echo "Unable to open package\n";
+    unlink($maintenance);
+    exit(1);
+}
+
+// Run migrations for new release
+passthru('php ' . escapeshellarg(base_path('bin/migrate')));
+
+$currentLink = storage_path('current');
+if (is_link($currentLink) || file_exists($currentLink)) {
+    @unlink($currentLink);
+}
+@symlink($releaseDir, $currentLink);
+
+unlink($maintenance);
+
+echo "Update applied: {$version}\n";

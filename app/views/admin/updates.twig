@@ -1,0 +1,25 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2 class="mb-3">{{ t('nav.updates') }}</h2>
+<div class="card p-3 mb-3">
+  <div class="text-muted">Last applied:</div>
+  <div>{{ status.last_applied ? status.last_applied.version : 'N/A' }}</div>
+</div>
+{% if check %}
+  <div class="alert alert-info">{{ check.error ? check.error : 'Update found: ' ~ check.manifest.version }}</div>
+{% endif %}
+{% if download %}
+  <div class="alert alert-info">{{ download.error ? download.error : 'Downloaded: ' ~ download.package }}</div>
+{% endif %}
+<div class="d-flex gap-2">
+  <form method="post" action="/admin/updates/check">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn btn-accent">{{ t('updates.check') }}</button>
+  </form>
+  <form method="post" action="/admin/updates/download">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn btn-outline-dark">{{ t('updates.download') }}</button>
+  </form>
+</div>
+{% endblock %}

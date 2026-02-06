@@ -1,0 +1,21 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create archive
+        run: |
+          zip -r zhelpdesk.zip . -x "vendor/*" "storage/*" ".git/*"
+      - name: SHA256
+        run: sha256sum zhelpdesk.zip > zhelpdesk.zip.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zhelpdesk-release
+          path: |
+            zhelpdesk.zip
+            zhelpdesk.zip.sha256

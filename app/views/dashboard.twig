@@ -1,0 +1,15 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2 class="mb-4">{{ t('nav.dashboard') }}</h2>
+<div class="row g-3">
+  {% for item in stats %}
+    <div class="col-md-3">
+      <div class="card p-3">
+        <div class="text-muted">{{ item.status }}</div>
+        <div class="display-6 fw-bold">{{ item.total }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

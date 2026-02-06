@@ -1,0 +1,11 @@
+<nav class="topbar navbar navbar-expand-lg px-4 py-3">
+  <a class="navbar-brand fw-bold" href="/dashboard">{{ t('app.name') }}</a>
+  <div class="ms-auto d-flex gap-3 align-items-center">
+    {% if currentUser %}
+      <span class="text-muted">{{ currentUser.name }}</span>
+      <a href="/logout" class="btn btn-outline-dark btn-sm">Logout</a>
+    {% else %}
+      <a href="/login" class="btn btn-outline-dark btn-sm">Login</a>
+    {% endif %}
+  </div>
+</nav>

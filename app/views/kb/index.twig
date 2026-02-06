@@ -1,0 +1,20 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2 class="mb-3">{{ t('nav.kb') }}</h2>
+<div class="card p-3">
+  <form method="get" class="mb-3 d-flex gap-2">
+    <input class="form-control" name="q" placeholder="Search">
+    <button class="btn btn-accent">Search</button>
+  </form>
+  <ul class="list-group list-group-flush">
+    {% for article in articles %}
+      <li class="list-group-item">
+        <a href="/kb/{{ article.id }}">{{ article.title }}</a>
+      </li>
+    {% else %}
+      <li class="list-group-item text-muted">No articles</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

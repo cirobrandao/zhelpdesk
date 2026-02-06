@@ -1,0 +1,72 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../app/helpers.php';
+
+use Dotenv\Dotenv;
+use PDO;
+
+$dotenv = Dotenv::createImmutable(base_path());
+$dotenv->safeLoad();
+
+$db = require base_path('config/database.php');
+$dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $db['host'], $db['port'], $db['name'], $db['charset']);
+$pdo = new PDO($dsn, $db['user'], $db['pass'], [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+]);
+
+$command = $argv[1] ?? '';
+
+if ($command === 'create-user') {
+    $name = $argv[2] ?? '';
+    $email = $argv[3] ?? '';
+    $password = $argv[4] ?? '';
+    $role = $argv[5] ?? 'user';
+
+    if ($name === '' || $email === '' || $password === '') {
+        echo "Usage: php bin/console create-user <name> <email> <password> [role]\n";
+        exit(1);
+    }
+
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, locale, created_at) VALUES (:name, :email, :hash, :locale, NOW())');
+    $stmt->execute([
+        'name' => $name,
+        'email' => $email,
+        'hash' => $hash,
+        'locale' => 'pt_BR',
+    ]);
+    $userId = (int) $pdo->lastInsertId();
+
+    $roleStmt = $pdo->prepare('SELECT id FROM roles WHERE name = :name');
+    $roleStmt->execute(['name' => $role]);
+    $roleRow = $roleStmt->fetch();
+    if ($roleRow) {
+        $pdo->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (:user_id, :role_id)')
+            ->execute(['user_id' => $userId, 'role_id' => $roleRow['id']]);
+    }
+
+    echo "User created: {$email}\n";
+    exit(0);
+}
+
+if ($command === 'generate-token') {
+    $email = $argv[2] ?? '';
+    if ($email === '') {
+        echo "Usage: php bin/console generate-token <email>\n";
+        exit(1);
+    }
+    $token = bin2hex(random_bytes(32));
+    $stmt = $pdo->prepare('UPDATE users SET api_token = :token WHERE email = :email');
+    $stmt->execute(['token' => $token, 'email' => $email]);
+    echo "Token: {$token}\n";
+    exit(0);
+}
+
+echo "Available commands:\n";
+echo "  create-user <name> <email> <password> [role]\n";
+echo "  generate-token <email>\n";
+exit(0);

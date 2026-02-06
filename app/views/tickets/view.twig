@@ -1,0 +1,77 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>#{{ ticket.id }} - {{ ticket.subject }}</h2>
+  <div class="d-flex gap-2">
+    <form method="post" action="/tickets/{{ ticket.id }}/close">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-outline-danger btn-sm">{{ t('tickets.close') }}</button>
+    </form>
+    <form method="post" action="/tickets/{{ ticket.id }}/reopen">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-outline-secondary btn-sm">{{ t('tickets.reopen') }}</button>
+    </form>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card p-3 mb-3">
+      <div class="ticket-thread">
+        {% for msg in ticket.messages %}
+          <div class="mb-3">
+            <div class="small text-muted">{{ msg.name }} - {{ msg.created_at }} {% if msg.is_internal %}(internal){% endif %}</div>
+            <div>{{ msg.message }}</div>
+          </div>
+        {% else %}
+          <div class="text-muted">No messages</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card p-3 mb-3">
+      <h5>Attachments</h5>
+      {% for file in ticket.attachments %}
+        <div class="small">{{ file.original_name }} ({{ file.size }} bytes)</div>
+      {% else %}
+        <div class="text-muted">No attachments</div>
+      {% endfor %}
+    </div>
+    <div class="card p-3">
+      <form method="post" action="/tickets/{{ ticket.id }}/reply" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="mb-3">
+          <label class="form-label">{{ t('tickets.reply') }}</label>
+          <textarea class="form-control" name="message" rows="4"></textarea>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" value="1" name="is_internal" id="internalNote">
+          <label class="form-check-label" for="internalNote">{{ t('tickets.internal_note') }}</label>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ t('tickets.attachments') }}</label>
+          <input type="file" name="attachments[]" class="form-control" multiple>
+        </div>
+        <button class="btn btn-accent">{{ t('tickets.reply') }}</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card p-3 mb-3">
+      <h5>Timeline</h5>
+      {% for event in ticket.events %}
+        <div class="small text-muted">{{ event.created_at }} - {{ event.event_type }}</div>
+      {% else %}
+        <div class="text-muted">No events</div>
+      {% endfor %}
+    </div>
+    <div class="card p-3">
+      <h5>Related Articles</h5>
+      {% for article in related_articles %}
+        <div><a href="/kb/{{ article.id }}">{{ article.title }}</a></div>
+      {% else %}
+        <div class="text-muted">No related articles</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

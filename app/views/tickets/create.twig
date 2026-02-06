@@ -1,0 +1,39 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h2 class="mb-3">{{ t('tickets.create') }}</h2>
+<div class="card p-4">
+  <form method="post" action="/tickets" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.subject') }}</label>
+      <input class="form-control" name="subject" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.category') }}</label>
+      <select class="form-select" name="category">
+        {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.priority') }}</label>
+      <select class="form-select" name="priority">
+        {% for pr in priorities %}
+          <option value="{{ pr }}">{{ pr }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.description') }}</label>
+      <textarea class="form-control" name="description" rows="5"></textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.attachments') }}</label>
+      <input type="file" name="attachments[]" class="form-control" multiple>
+    </div>
+    <button class="btn btn-accent">{{ t('tickets.create') }}</button>
+  </form>
+</div>
+{% endblock %}
