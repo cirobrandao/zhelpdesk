@@ -57,6 +57,14 @@
   </div>
   <div class="col-lg-4">
     <div class="card p-3 mb-3">
+      <h5>{{ t('tickets.tags') }}</h5>
+      {% for tag in ticket.tags %}
+        <span class="badge text-bg-light">{{ tag }}</span>
+      {% else %}
+        <div class="text-muted">{{ t('ui.na') }}</div>
+      {% endfor %}
+    </div>
+    <div class="card p-3 mb-3">
       <h5>{{ t('ui.timeline') }}</h5>
       {% for event in ticket.events %}
         <div class="small text-muted">{{ event.created_at }} - {{ event.event_type }}</div>

@@ -23,6 +23,7 @@ $pdo = new PDO($dsn, $db['user'], $db['pass'], [
 ]);
 
 $repo = new App\Repositories\UpdateRepository($pdo);
+$auditRepo = new App\Repositories\AuditRepository($pdo);
 $service = new UpdateService($repo, $configUpdater);
 
 $command = $argv[1] ?? '';
@@ -86,6 +87,10 @@ $previous = $repo->lastApplied();
 $previousVersion = $previous['version'] ?? null;
 if ($userId > 0) {
     $repo->recordApplied($version, (string) $previousVersion, $userId);
+    $auditRepo->log($userId, 'update_applied', json_encode([
+        'from' => $previousVersion,
+        'to' => $version,
+    ]));
 }
 
 echo "Update applied: {$version}\n";

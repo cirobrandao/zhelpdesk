@@ -32,6 +32,7 @@ $app = AppFactory::create();
 
 $configApp = $container->get('config.app');
 $app->addErrorMiddleware($configApp['debug'], true, true);
+$app->addBodyParsingMiddleware();
 
 require base_path('app/routes.php');
 

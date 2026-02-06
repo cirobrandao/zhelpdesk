@@ -7,10 +7,14 @@
   <div>{{ status.last_applied ? status.last_applied.version : t('ui.na') }}</div>
 </div>
 {% if check %}
-  <div class="alert alert-info">{{ check.error ? check.error : t('ui.update_found') ~ ' ' ~ check.manifest.version }}</div>
+  <div class="alert alert-info">
+    {{ check.error ? t(check.error, {'field': check.field|default('')}) : t('ui.update_found') ~ ' ' ~ check.manifest.version }}
+  </div>
 {% endif %}
 {% if download %}
-  <div class="alert alert-info">{{ download.error ? download.error : t('ui.downloaded') ~ ' ' ~ download.package }}</div>
+  <div class="alert alert-info">
+    {{ download.error ? t(download.error, {'field': download.field|default('')}) : t('ui.downloaded') ~ ' ' ~ download.package }}
+  </div>
 {% endif %}
 <div class="d-flex gap-2">
   <form method="post" action="/admin/updates/check">

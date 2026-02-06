@@ -30,7 +30,7 @@ class UpdateService
     {
         $endpoint = $this->config['endpoint'] ?? '';
         if ($endpoint === '') {
-            return ['error' => 'Update endpoint not configured'];
+            return ['error' => 'updater.endpoint_missing'];
         }
 
         $client = new Client(['timeout' => 10]);
@@ -38,7 +38,7 @@ class UpdateService
         $manifest = json_decode((string) $response->getBody(), true);
 
         if (!is_array($manifest)) {
-            return ['error' => 'Invalid manifest'];
+            return ['error' => 'updater.invalid_manifest'];
         }
 
         file_put_contents($this->manifestPath(), json_encode($manifest, JSON_PRETTY_PRINT));
@@ -49,17 +49,17 @@ class UpdateService
     {
         $manifestPath = $this->manifestPath();
         if (!file_exists($manifestPath)) {
-            return ['error' => 'Manifest not found'];
+            return ['error' => 'updater.manifest_not_found'];
         }
 
         $manifest = json_decode(file_get_contents($manifestPath) ?: '', true);
         if (!is_array($manifest)) {
-            return ['error' => 'Invalid manifest'];
+            return ['error' => 'updater.invalid_manifest'];
         }
 
         $verify = $this->verifyManifest($manifest);
         if ($verify !== true) {
-            return ['error' => $verify];
+            return $verify;
         }
 
         $client = new Client(['timeout' => 60]);
@@ -68,27 +68,27 @@ class UpdateService
 
         $sha256 = hash_file('sha256', $packagePath);
         if (!hash_equals((string) $manifest['sha256'], $sha256)) {
-            return ['error' => 'SHA256 mismatch'];
+            return ['error' => 'updater.sha_mismatch'];
         }
 
         return ['ok' => true, 'package' => $packagePath];
     }
 
-    private function verifyManifest(array $manifest)
+    private function verifyManifest(array $manifest): array|bool
     {
         foreach (['version', 'url', 'sha256', 'signature'] as $field) {
             if (empty($manifest[$field])) {
-                return 'Missing field: ' . $field;
+                return ['error' => 'updater.missing_field', 'field' => $field];
             }
         }
 
         $publicKey = $this->config['public_key'] ?? '';
         if ($publicKey === '') {
-            return 'Public key missing';
+            return ['error' => 'updater.public_key_missing'];
         }
 
         if (!function_exists('sodium_crypto_sign_verify_detached')) {
-            return 'Sodium extension not available';
+            return ['error' => 'updater.sodium_missing'];
         }
 
         $data = $manifest['version'] . '|' . $manifest['url'] . '|' . $manifest['sha256'];
@@ -96,11 +96,11 @@ class UpdateService
         $key = base64_decode($publicKey);
 
         if ($signature === false || $key === false) {
-            return 'Invalid base64 in manifest or key';
+            return ['error' => 'updater.invalid_base64'];
         }
 
         $valid = sodium_crypto_sign_verify_detached($signature, $data, $key);
-        return $valid ? true : 'Invalid signature';
+        return $valid ? true : ['error' => 'updater.invalid_signature'];
     }
 
     private function manifestPath(): string

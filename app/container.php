@@ -65,6 +65,7 @@ return [
             return csrf_token();
         }));
         $twig->getEnvironment()->addGlobal('app', $container->get('config.app'));
+        $twig->getEnvironment()->addGlobal('agents', $container->get(\App\Services\UserService::class)->listAgents());
         return $twig;
     },
 

@@ -21,9 +21,22 @@
       <label class="form-label">{{ t('tickets.priority') }}</label>
       <select class="form-select" name="priority">
         {% for pr in priorities %}
-          <option value="{{ pr }}">{{ pr }}</option>
+          <option value="{{ pr }}">{{ t('priority.' ~ pr) }}</option>
         {% endfor %}
       </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.assigned_agent') }}</label>
+      <select class="form-select" name="assigned_agent_id">
+        <option value="">{{ t('ui.na') }}</option>
+        {% for agent in agents %}
+          <option value="{{ agent.id }}">{{ agent.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ t('tickets.tags') }}</label>
+      <input class="form-control" name="tags" placeholder="{{ t('tickets.tags_hint') }}">
     </div>
     <div class="mb-3">
       <label class="form-label">{{ t('tickets.description') }}</label>

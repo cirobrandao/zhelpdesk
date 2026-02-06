@@ -11,18 +11,25 @@
   <input class="form-control" name="q" placeholder="{{ t('ui.search') }}">
   <select class="form-select" name="status">
     <option value="">{{ t('tickets.status') }}</option>
-    <option value="open">open</option>
-    <option value="in_progress">in_progress</option>
-    <option value="on_hold">on_hold</option>
-    <option value="resolved">resolved</option>
-    <option value="closed">closed</option>
+    <option value="open">{{ t('status.open') }}</option>
+    <option value="in_progress">{{ t('status.in_progress') }}</option>
+    <option value="on_hold">{{ t('status.on_hold') }}</option>
+    <option value="resolved">{{ t('status.resolved') }}</option>
+    <option value="closed">{{ t('status.closed') }}</option>
   </select>
   <select class="form-select" name="priority">
     <option value="">{{ t('tickets.priority') }}</option>
-    <option value="low">low</option>
-    <option value="medium">medium</option>
-    <option value="high">high</option>
-    <option value="urgent">urgent</option>
+    <option value="low">{{ t('priority.low') }}</option>
+    <option value="medium">{{ t('priority.medium') }}</option>
+    <option value="high">{{ t('priority.high') }}</option>
+    <option value="urgent">{{ t('priority.urgent') }}</option>
   </select>
+  <select class="form-select" name="agent_id">
+    <option value="">{{ t('tickets.assigned_agent') }}</option>
+    {% for agent in agents %}
+      <option value="{{ agent.id }}">{{ agent.name }}</option>
+    {% endfor %}
+  </select>
+  <input class="form-control" name="tag" placeholder="{{ t('tickets.tags') }}">
   <button class="btn btn-accent">{{ t('ui.filter') }}</button>
 </form>

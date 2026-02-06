@@ -84,7 +84,7 @@ php bin/console generate-token admin@example.com
 
 ## Updater (releases assinadas)
 
-1) Gere um pacote (zip ou tar.gz) e calcule SHA256.
+1) Gere um pacote zip e calcule SHA256.
 2) Assine o JSON do manifesto com sua chave privada.
 3) Publique manifesto e pacote em um endpoint HTTPS.
 4) Defina `UPDATE_ENDPOINT` e `APP_PUBLIC_KEY` no .env.

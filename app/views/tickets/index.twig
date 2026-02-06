@@ -21,8 +21,8 @@
         <tr>
           <td>#{{ ticket.id }}</td>
           <td><a href="/tickets/{{ ticket.id }}">{{ ticket.subject }}</a></td>
-          <td><span class="badge badge-status">{{ ticket.status }}</span></td>
-          <td>{{ ticket.priority }}</td>
+          <td><span class="badge badge-status">{{ t('status.' ~ ticket.status) }}</span></td>
+          <td>{{ t('priority.' ~ ticket.priority) }}</td>
           <td>{{ ticket.updated_at }}</td>
         </tr>
       {% else %}

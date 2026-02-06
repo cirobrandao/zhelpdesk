@@ -119,4 +119,11 @@ class UserRepository
         $stmt = $this->db->prepare('UPDATE users SET password_hash = :hash, reset_token = NULL, reset_expires_at = NULL WHERE id = :id');
         $stmt->execute(['id' => $id, 'hash' => $hash]);
     }
+
+    public function listByRole(string $role): array
+    {
+        $stmt = $this->db->prepare('SELECT u.id, u.name FROM users u JOIN user_roles ur ON ur.user_id = u.id JOIN roles r ON r.id = ur.role_id WHERE r.name = :role');
+        $stmt->execute(['role' => $role]);
+        return $stmt->fetchAll();
+    }
 }

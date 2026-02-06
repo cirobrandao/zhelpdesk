@@ -19,4 +19,9 @@ class UserService
     {
         return $this->users->findById($id);
     }
+
+    public function listAgents(): array
+    {
+        return $this->users->listByRole('agent');
+    }
 }

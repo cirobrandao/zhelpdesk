@@ -32,7 +32,7 @@ if ($command === 'create-user') {
     }
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, locale, created_at) VALUES (:name, :email, :hash, :locale, NOW())');
+    $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, locale, email_verified_at, created_at) VALUES (:name, :email, :hash, :locale, NOW(), NOW())');
     $stmt->execute([
         'name' => $name,
         'email' => $email,

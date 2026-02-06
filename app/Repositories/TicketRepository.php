@@ -17,8 +17,14 @@ class TicketRepository
 
     public function list(array $filters): array
     {
-        $sql = 'SELECT t.* FROM tickets t WHERE 1=1';
+        $sql = 'SELECT t.* FROM tickets t';
         $params = [];
+
+        if (!empty($filters['tag'])) {
+            $sql .= ' JOIN ticket_tags tt ON tt.ticket_id = t.id JOIN tags tg ON tg.id = tt.tag_id';
+        }
+
+        $sql .= ' WHERE 1=1';
 
         if (!empty($filters['status'])) {
             $sql .= ' AND t.status = :status';
@@ -35,6 +41,10 @@ class TicketRepository
         if (!empty($filters['q'])) {
             $sql .= ' AND (t.subject LIKE :q OR t.description LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
+        }
+        if (!empty($filters['tag'])) {
+            $sql .= ' AND tg.name = :tag';
+            $params['tag'] = $filters['tag'];
         }
 
         $sql .= ' ORDER BY t.updated_at DESC';
@@ -56,6 +66,7 @@ class TicketRepository
         $ticket['messages'] = $this->messages($id);
         $ticket['events'] = $this->events($id);
         $ticket['attachments'] = $this->attachments($id);
+        $ticket['tags'] = $this->tagsForTicket($id);
 
         return $ticket;
     }
@@ -144,6 +155,29 @@ class TicketRepository
         $stmt = $this->db->prepare('SELECT * FROM ticket_attachments WHERE ticket_id = :id');
         $stmt->execute(['id' => $ticketId]);
         return $stmt->fetchAll();
+    }
+
+    public function tagsForTicket(int $ticketId): array
+    {
+        $stmt = $this->db->prepare('SELECT tg.name FROM tags tg JOIN ticket_tags tt ON tt.tag_id = tg.id WHERE tt.ticket_id = :id');
+        $stmt->execute(['id' => $ticketId]);
+        return array_map(fn ($row) => $row['name'], $stmt->fetchAll());
+    }
+
+    public function setTags(int $ticketId, array $tags): void
+    {
+        $this->db->prepare('DELETE FROM ticket_tags WHERE ticket_id = :id')->execute(['id' => $ticketId]);
+        foreach ($tags as $tag) {
+            $tag = trim($tag);
+            if ($tag === '') {
+                continue;
+            }
+            $insertTag = $this->db->prepare('INSERT INTO tags (name) VALUES (:name) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)');
+            $insertTag->execute(['name' => $tag]);
+            $tagId = (int) $this->db->lastInsertId();
+            $this->db->prepare('INSERT INTO ticket_tags (ticket_id, tag_id) VALUES (:ticket_id, :tag_id)')
+                ->execute(['ticket_id' => $ticketId, 'tag_id' => $tagId]);
+        }
     }
 
     public function statusCounters(): array

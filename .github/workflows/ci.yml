@@ -12,7 +12,12 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-      - run: composer validate --no-check-publish
       - run: composer install --prefer-dist --no-progress
-      - run: find app -name "*.php" -print0 | xargs -0 -n1 php -l
-      - run: php -l public/index.php
+      - run: composer validate --no-check-publish
+      - run: find app bin config public -name "*.php" -print0 | xargs -0 -n1 php -l
+      - run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
+            vendor/bin/phpunit
+          else
+            echo "No phpunit config found"
+          fi

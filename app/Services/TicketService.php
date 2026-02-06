@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Repositories\TicketRepository;
+use App\Domain\TicketPriority;
+use App\Domain\TicketStatus;
 use Psr\Http\Message\UploadedFileInterface;
 
 class TicketService
@@ -13,10 +15,10 @@ class TicketService
     private AuditService $audit;
 
     private array $priorities = [
-        'low' => 72,
-        'medium' => 48,
-        'high' => 24,
-        'urgent' => 4,
+        TicketPriority::LOW => 72,
+        TicketPriority::MEDIUM => 48,
+        TicketPriority::HIGH => 24,
+        TicketPriority::URGENT => 4,
     ];
 
     public function __construct(TicketRepository $repo, AuditService $audit)
@@ -41,17 +43,23 @@ class TicketService
         $priority = $data['priority'] ?? 'medium';
         $hours = $this->priorities[$priority] ?? 48;
         $slaDue = date('Y-m-d H:i:s', time() + ($hours * 3600));
+        $assigned = !empty($data['assigned_agent_id']) ? (int) $data['assigned_agent_id'] : null;
 
         $ticketId = $this->repo->create([
             'subject' => $data['subject'] ?? '',
             'description' => $data['description'] ?? '',
-            'status' => 'open',
+            'status' => TicketStatus::OPEN,
             'priority' => $priority,
             'category' => $data['category'] ?? null,
             'created_by' => $userId,
-            'assigned_agent_id' => null,
+            'assigned_agent_id' => $assigned,
             'sla_due_at' => $slaDue,
         ]);
+
+        $tags = array_filter(array_map('trim', explode(',', (string) ($data['tags'] ?? ''))));
+        if ($tags) {
+            $this->repo->setTags($ticketId, $tags);
+        }
 
         $messageId = $this->repo->addMessage($ticketId, $userId, (string) ($data['description'] ?? ''), false);
         $this->storeAttachments($ticketId, $messageId, $files);
@@ -74,14 +82,14 @@ class TicketService
 
     public function closeTicket(int $ticketId, int $userId): void
     {
-        $this->repo->setStatus($ticketId, 'closed');
+        $this->repo->setStatus($ticketId, TicketStatus::CLOSED);
         $this->repo->addEvent($ticketId, 'closed', json_encode(['by' => $userId]));
         $this->audit->log($userId, 'ticket_closed', ['ticket_id' => $ticketId]);
     }
 
     public function reopenTicket(int $ticketId, int $userId): void
     {
-        $this->repo->setStatus($ticketId, 'open');
+        $this->repo->setStatus($ticketId, TicketStatus::OPEN);
         $this->repo->addEvent($ticketId, 'reopened', json_encode(['by' => $userId]));
         $this->audit->log($userId, 'ticket_reopened', ['ticket_id' => $ticketId]);
     }
@@ -98,7 +106,7 @@ class TicketService
 
     public function priorities(): array
     {
-        return array_keys($this->priorities);
+        return TicketPriority::all();
     }
 
     private function storeAttachments(int $ticketId, int $messageId, array $files): void

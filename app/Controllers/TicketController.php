@@ -34,9 +34,11 @@ class TicketController extends BaseController
     public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $service = $this->container->get(TicketService::class);
+        $users = $this->container->get(\App\Services\UserService::class);
         return $this->view($response, 'tickets/create.twig', [
             'categories' => $service->categories(),
             'priorities' => $service->priorities(),
+            'agents' => $users->listAgents(),
         ]);
     }
 
